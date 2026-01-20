@@ -1,4 +1,7 @@
-\# AutoSec CI/CD Guardian 🚀🔒
+![AutoSec CI](https://github.com/Perera1325/autosec-cicd-guardian/actions/workflows/ci.yml/badge.svg)
+
+# AutoSec CI/CD Guardian 🚀🔒
+
 
 
 
