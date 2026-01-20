@@ -1,0 +1,41 @@
+{
+  "final_risk_score": 50,
+  "severity": "MEDIUM",
+  "recommended_action": "REVIEW",
+  "details": {
+    "workflow_findings": 4,
+    "workflow_files": [
+      {
+        "workflow_file": ".github/workflows\\ci.yml",
+        "risk_score": 60,
+        "findings": [
+          {
+            "type": "UNPINNED_ACTION",
+            "severity": "MEDIUM",
+            "message": "Action not pinned to commit SHA: actions/checkout@v4"
+          },
+          {
+            "type": "UNPINNED_ACTION",
+            "severity": "MEDIUM",
+            "message": "Action not pinned to commit SHA: actions/setup-python@v5"
+          },
+          {
+            "type": "UNPINNED_ACTION",
+            "severity": "MEDIUM",
+            "message": "Action not pinned to commit SHA: gitleaks/gitleaks-action@v2"
+          },
+          {
+            "type": "UNPINNED_ACTION",
+            "severity": "MEDIUM",
+            "message": "Action not pinned to commit SHA: actions/upload-artifact@v4"
+          }
+        ]
+      }
+    ],
+    "secrets_found": 0,
+    "dependency_vulns": 0
+  },
+  "reasons": [
+    "Workflow risk findings: 4"
+  ]
+}

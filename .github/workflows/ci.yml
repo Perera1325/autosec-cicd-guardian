@@ -54,3 +54,9 @@ jobs:
         with:
           name: security-reports
           path: reports/
+
+      # ✅ 5) Final risk scoring engine (Day 4)
+      - name: Run Final Risk Engine
+        run: |
+          python src/risk_engine.py
+
