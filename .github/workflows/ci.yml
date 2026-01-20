@@ -7,7 +7,7 @@ on:
     branches: ["main"]
 
 jobs:
-  test:
+  security-ci:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,11 +19,32 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install dependencies
+      - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # ✅ 1) Unit Tests
       - name: Run tests
         run: |
           pytest -q
+
+      # ✅ 2) Secret scanning with Gitleaks (DevSecOps standard)
+      - name: Run Gitleaks secret scan
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          args: --report-format json --report-path reports/gitleaks-report.json
+        continue-on-error: true
+
+      # ✅ 3) Dependency vulnerability scan (pip-audit)
+      - name: Run pip-audit dependency scan
+        run: |
+          pip-audit -r requirements.txt -f json -o reports/pip-audit-report.json
+        continue-on-error: true
+
+      # ✅ 4) Upload reports as GitHub artifacts
+      - name: Upload security reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: reports/
