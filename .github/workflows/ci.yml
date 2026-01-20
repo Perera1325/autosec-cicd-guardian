@@ -29,6 +29,12 @@ jobs:
         run: |
           pytest -q
 
+      # ✅ 4) Workflow risk analysis (Day 3)
+      - name: Run Workflow Risk Analyzer
+        run: |
+          python src/workflow_analyzer.py
+
+
       # ✅ 2) Secret scanning with Gitleaks (DevSecOps standard)
       - name: Run Gitleaks secret scan
         uses: gitleaks/gitleaks-action@v2

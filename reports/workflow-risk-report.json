@@ -1,0 +1,32 @@
+{
+  "total_files_scanned": 1,
+  "total_findings": 4,
+  "files": [
+    {
+      "workflow_file": ".github/workflows\\ci.yml",
+      "risk_score": 60,
+      "findings": [
+        {
+          "type": "UNPINNED_ACTION",
+          "severity": "MEDIUM",
+          "message": "Action not pinned to commit SHA: actions/checkout@v4"
+        },
+        {
+          "type": "UNPINNED_ACTION",
+          "severity": "MEDIUM",
+          "message": "Action not pinned to commit SHA: actions/setup-python@v5"
+        },
+        {
+          "type": "UNPINNED_ACTION",
+          "severity": "MEDIUM",
+          "message": "Action not pinned to commit SHA: gitleaks/gitleaks-action@v2"
+        },
+        {
+          "type": "UNPINNED_ACTION",
+          "severity": "MEDIUM",
+          "message": "Action not pinned to commit SHA: actions/upload-artifact@v4"
+        }
+      ]
+    }
+  ]
+}
