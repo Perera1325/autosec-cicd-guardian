@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AutoSec SOC Dashboard</title>
+
+  <link rel="stylesheet" href="/static/style.css"/>
+</head>
+<body>
+  <!-- Top Nav -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-icon">🚨</span>
+      <div class="brand-text">
+        <div class="brand-title">AutoSec CI/CD Guardian</div>
+        <div class="brand-sub">SOC Dashboard</div>
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <span class="chip">
+        <span class="dot"></span> LIVE
+      </span>
+      <span class="muted">Local: 127.0.0.1:5000</span>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Hero -->
+    <section class="hero fade-in">
+      <div class="hero-left">
+        <h1>Security Posture Overview</h1>
+        <p class="muted">
+          Unified CI/CD security insights (Workflow risks • Secret leaks • Dependency vulnerabilities) with automated scoring and response.
+        </p>
+
+        <div class="meta">
+          <div class="meta-item">
+            <div class="meta-label">Project</div>
+            <div class="meta-value">AutoSec CI/CD Guardian</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Mode</div>
+            <div class="meta-value">Dev / Local SOC</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Risk Ring -->
+      <div class="hero-right slide-in">
+        <div class="ring">
+          <div class="ring-inner">
+            <div class="ring-score">{{ final.get("final_risk_score","N/A") }}</div>
+            <div class="ring-label">Risk Score</div>
+          </div>
+        </div>
+
+        <div class="severity-line">
+          <span class="badge sev-{{ final.get('severity','LOW')|lower }}">
+            {{ final.get("severity","LOW") }}
+          </span>
+          <span class="badge action">{{ final.get("recommended_action","ALLOW") }}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cards -->
+    <section class="grid fade-in delay-1">
+      <div class="card hover">
+        <div class="card-title">Workflow Findings</div>
+        <div class="card-value">{{ workflow.get("total_findings",0) }}</div>
+        <div class="card-sub muted">Risky configurations & supply-chain patterns</div>
+      </div>
+
+      <div class="card hover">
+        <div class="card-title">Secrets Found</div>
+        <div class="card-value">{{ secrets_found }}</div>
+        <div class="card-sub muted">Credential leaks detected via Gitleaks</div>
+      </div>
+
+      <div class="card hover">
+        <div class="card-title">Dependency Vulnerabilities</div>
+        <div class="card-value">{{ vuln_count }}</div>
+        <div class="card-sub muted">Known CVEs detected via pip-audit</div>
+      </div>
+    </section>
+
+    <!-- Reasons -->
+    <section class="section fade-in delay-2">
+      <div class="section-head">
+        <h2>⚠️ Risk Reasons</h2>
+        <p class="muted">Why this pipeline was scored at this level.</p>
+      </div>
+
+      <div class="panel">
+        <ul class="list">
+          {% for r in final.get("reasons",[]) %}
+            <li class="list-item">
+              <span class="list-dot"></span>
+              <span>{{ r }}</span>
+            </li>
+          {% endfor %}
+          {% if final.get("reasons",[])|length == 0 %}
+            <li class="muted">No reasons found.</li>
+          {% endif %}
+        </ul>
+      </div>
+    </section>
+
+    <!-- Workflow Findings -->
+    <section class="section fade-in delay-3">
+      <div class="section-head">
+        <h2>🔍 Workflow Risk Findings</h2>
+        <p class="muted">Detected risky patterns in GitHub Actions workflow YAML.</p>
+      </div>
+
+      {% for file in workflow.get("files",[]) %}
+        <div class="panel">
+          <div class="panel-head">
+            <div class="file-title">
+              <span class="icon">📄</span>
+              <span class="mono">{{ file.get("workflow_file") }}</span>
+            </div>
+
+            <div class="file-score">
+              <span class="muted">Score</span>
+              <span class="badge sev-{{ 'high' if file.get('risk_score',0)>=70 else ('medium' if file.get('risk_score',0)>=40 else 'low') }}">
+                {{ file.get("risk_score") }}
+              </span>
+            </div>
+          </div>
+
+          <div class="table">
+            <div class="thead">
+              <div>Severity</div>
+              <div>Type</div>
+              <div>Message</div>
+            </div>
+
+            {% for finding in file.get("findings",[]) %}
+              <div class="trow">
+                <div>
+                  <span class="pill sev-{{ finding.get('severity','LOW')|lower }}">
+                    {{ finding.get("severity") }}
+                  </span>
+                </div>
+                <div class="mono">{{ finding.get("type") }}</div>
+                <div>{{ finding.get("message") }}</div>
+              </div>
+            {% endfor %}
+
+            {% if file.get("findings",[])|length == 0 %}
+              <div class="trow muted">No findings for this workflow file.</div>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </section>
+
+    <!-- Raw JSON Reports -->
+    <section class="section fade-in delay-4">
+      <div class="section-head">
+        <h2>📄 Reports (Raw JSON)</h2>
+        <p class="muted">Expandable raw reports for debugging and evidence.</p>
+      </div>
+
+      <div class="panel">
+        <details class="details" open>
+          <summary>Final Risk Report</summary>
+          <pre>{{ final | tojson(indent=2) }}</pre>
+        </details>
+
+        <details class="details">
+          <summary>Workflow Report</summary>
+          <pre>{{ workflow | tojson(indent=2) }}</pre>
+        </details>
+
+        <details class="details">
+          <summary>pip-audit Report</summary>
+          <pre>{{ pipaudit | tojson(indent=2) }}</pre>
+        </details>
+
+        <details class="details">
+          <summary>Gitleaks Report</summary>
+          <pre>{{ gitleaks | tojson(indent=2) }}</pre>
+        </details>
+      </div>
+    </section>
+
+    <footer class="footer muted">
+      AutoSec CI/CD Guardian • Day 6 SOC Dashboard • Built by Perera1325
+    </footer>
+  </main>
+
+<script>
+  window.addEventListener('load', () => {
+    document.querySelectorAll('.fade-in, .slide-in').forEach(el => el.classList.add('show'));
+
+    // Dynamic ring fill based on score
+    const score = Number("{{ final.get('final_risk_score', 0) }}") || 0;
+    const ring = document.querySelector('.ring');
+    const deg = Math.max(0, Math.min(100, score)) * 3.6;
+
+    let color = getComputedStyle(document.documentElement).getPropertyValue('--green').trim();
+    if (score >= 70) color = getComputedStyle(document.documentElement).getPropertyValue('--red').trim();
+    else if (score >= 40) color = getComputedStyle(document.documentElement).getPropertyValue('--yellow').trim();
+
+    ring.style.background = `conic-gradient(${color} ${deg}deg, rgba(255,255,255,.08) ${deg}deg)`;
+  });
+</script>
+
+</body>
+</html>
