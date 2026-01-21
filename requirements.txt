@@ -1,3 +1,4 @@
 pytest
 pip-audit
 flask
+gunicorn
